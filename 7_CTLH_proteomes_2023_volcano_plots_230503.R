@@ -90,7 +90,6 @@ volc %<>%
   mutate(logFC = -logFC)
 
 
-
 ## list of proteins to plot volcano for
 prots =
   c(
@@ -104,11 +103,19 @@ prots =
 ## separate with : if multiple
 to_label =
   c(
-    "MKLN1:HMGCS1", # RMND5A labels
-    "MKLN1:HMGCS1", # MAEA labels
+    "MKLN1", # RMND5A labels
+    "MKLN1", # MAEA labels
     "HMGCS1", # MKLN1 labels
     "HMGCS1" # WDR26 labels
     )
+
+# to_label =
+#   c(
+#     "MKLN1:HMGCS1", # RMND5A labels
+#     "MKLN1:HMGCS1", # MAEA labels
+#     "HMGCS1", # MKLN1 labels
+#     "HMGCS1" # WDR26 labels
+#   )
 
 to_loop =
   tibble(prots,
@@ -186,12 +193,15 @@ for(i in 1:nrow(to_loop)){
   # custom volcano plot
   plot_list[[i]]=
     ggplot(temp,aes(logFC,minuslogp, label = label))+
+    # geom_point_rast(data=subset(temp, sig!="sig"),alpha=.4,raster.dpi=900,shape=".",colour="gray60")+ # rasterise as many points are slow
+    # geom_point_rast(data=subset(temp, sig=="sig"&label=="nolabel"),alpha=.8,raster.dpi=900,shape=".")+
+    # geom_point_rast(data=subset(temp, label!="nolabel"),alpha=.95,raster.dpi=900,shape=20,size=.1,colour="red")+
+    geom_point(data=subset(temp, sig!="sig"),alpha=.4,shape=".",colour="gray60")+ # rasterise as many points are slow
+    geom_point(data=subset(temp, sig=="sig"&label=="nolabel"),alpha=.8,shape=".")+
+    geom_point(data=subset(temp, label!="nolabel"),alpha=.95,shape=20,size=.1,colour="red")+
     geom_hline(yintercept = -log10(p_thresh),linetype="dashed",size=.1)+
-    geom_vline(xintercept = log2(lfc_thresh),linetype="dashed",size=.1)+
-    geom_vline(xintercept = -log2(lfc_thresh),linetype="dashed",size=.1)+
-    geom_point_rast(data=subset(temp, sig!="sig"),alpha=.4,raster.dpi=900,shape=".",colour="gray60")+ # rasterise as many points are slow
-    geom_point_rast(data=subset(temp, sig=="sig"&label=="nolabel"),alpha=.8,raster.dpi=900,shape=".")+
-    geom_point_rast(data=subset(temp, label!="nolabel"),alpha=.95,raster.dpi=900,shape=20,size=.1,colour="red")+
+    geom_vline(xintercept = lfc_thresh,linetype="dashed",size=.1)+
+    geom_vline(xintercept = -lfc_thresh,linetype="dashed",size=.1)+
     # decreased proteins number label
     annotate(geom="text", x=label_x_left, y=label_y, label=prot_nums[1,2],color="black",size=1)+
     # increased proteins number label
@@ -204,6 +214,7 @@ for(i in 1:nrow(to_loop)){
       panel.grid = element_blank(),
       panel.border = element_rect(size=.1),
       axis.ticks = element_line(size=.1),
+      axis.ticks.length=unit(.3,"mm"),
       text=element_text(size=5),
       legend.key.size = unit(5,"mm"),
       title=element_text(size=2.5),
@@ -226,7 +237,7 @@ for(i in 1:nrow(to_loop)){
 
 
 
-wrap_plots(plot_list) +
+p=wrap_plots(plot_list) +
   plot_layout(guides="collect",ncol=4) +
   plot_annotation(title = "CTLH_proteomes_volcano",
                   theme = 
@@ -235,7 +246,8 @@ wrap_plots(plot_list) +
                       legend.position = legpos
                     ))
 
-ggsave(paste0(plot_dir,"Volcano_all.pdf"),
-       width=3.8,
-       height=1.3)
+ggsave(filename = paste0(plot_dir,"Volcano_all.pdf"),
+       plot = p,
+       width=4,
+       height=1.4)
 
