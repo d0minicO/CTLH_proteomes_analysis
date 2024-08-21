@@ -21,20 +21,17 @@ options(max.print=100)
 base = "C:/Users/imnot/OneDrive/Postdoc/Projects/Maitland_proteomes/Analysis_v3_separated_Apr23/"
 
 # specify the data folder for protein tables
-dat.dir = paste0(base,"data/")
+dat.dir = paste0(base,"search_results/")
 dir.create(dat.dir,showWarnings = F)
 
 # output of fragpipe combined_protein.tsv file
 ## give it a nice name as outputs will be based on it
 in_files =
   c(
-    "combined_protein_mkln_wdr.tsv",
     "combined_protein_mkln_wdr_msbooster.tsv",
-    "combined_protein_rmd_maea.tsv",
     "combined_protein_rmd_maea_msbooster.tsv"
   )
 
-f="combined_protein_mkln_wdr.tsv"
 
 data_prepper = function(dat.dir,f){
   ## function that takes the data directory where input / output files go
@@ -69,10 +66,10 @@ data_prepper = function(dat.dir,f){
   sample_info_file = paste0(dat.dir,"fragpipe-files.fp-manifest")
   
   ## maxquant contaminants fasta db file
-  con_file_mq = paste0(dat.dir,"contaminants.fasta")
+  con_file_mq = paste0("database/contaminants.fasta")
   
   # Hao contaminants file ## https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00145
-  con_file = paste0(dat.dir,"Hao_contaminants.tsv")
+  con_file = paste0("database/Hao_contaminants.tsv")
   
   
   
@@ -178,11 +175,11 @@ data_prepper = function(dat.dir,f){
   ## continued in part 2 after saving wide again ##
   
   ## gather wide format programmatically to get long data
-  keycol <- "sample"
-  valuecol <- "LFQ"
+  #keycol <- "sample"
+  #valuecol <- "LFQ"
   gathercols <- colnames(dat)[3:ncol(dat)]
   
-  long = gather_(dat, keycol, valuecol, gathercols)
+  long = gather(dat, sample, LFQ, all_of(gathercols))
   
   
   ## clean up cols and match to samples
