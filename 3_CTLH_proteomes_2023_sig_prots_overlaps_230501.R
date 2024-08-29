@@ -458,8 +458,9 @@ perfect_degron_IDs =
 unique(proteome$Degron)
 
 
+# find the increased proteins that have a perfect or perfect if trimmed degron
 sig_all %>%
+  filter(logFC<0) %>%
   left_join(proteome,by="ID") %>%
-  filter(Degron=="Perfect",
-         Gene %in% prot_list) %>%
-  view()
+  filter(Degron=="Perfect") %>%
+  write_tsv(paste0(stat_dir,'ProN-degron-increased-proteins.tsv'))
